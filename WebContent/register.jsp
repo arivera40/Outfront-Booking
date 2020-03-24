@@ -8,7 +8,7 @@
 	</head>
 	<body>
 		<h1>Outfront Register Form</h1>
-		<form action="outfront_register" method="post">
+		<form action="RegisterServlet" method="post">
 			<table style="width: 50%">
 				<tr>
 					<td>Email</td>
@@ -20,10 +20,10 @@
 				</tr>
 				<tr>
 					<td>Password</td>
-					<td><input type="text" name="password" /></td>
+					<td><input type="password" name="password" /></td>
 				</tr>
 			</table>
-			<input type="submit" value="Submit" />
+			<input type="submit" value="Register" />
 		</form>
 	</body>
 </html>
