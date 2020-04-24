@@ -36,7 +36,7 @@ public class AccountDAO {
 				ps = currentCon.prepareStatement(insertQuery);
 				ps.setString(1, email);
 				ps.setString(2, password);
-				ps.setString(3, "5");	//fix this
+				ps.setString(3, "0");
 				ps.setString(4, username);
 				
 				ps.executeUpdate();
@@ -111,6 +111,8 @@ public class AccountDAO {
 			}else if(more){
 				username = rs.getString("username");
 				System.out.println("Welcome "+ username);
+				acc.setAccountNum(rs.getInt("acc_number"));
+				acc.setEmail(rs.getString("email"));
 				acc.setUsername(username);
 				acc.setValid(true);
 			}
@@ -138,5 +140,118 @@ public class AccountDAO {
 			}
 		}
 		return acc;
+	}
+	
+	public static int checkStatus(Account acc) {
+		Statement stmt = null;
+		System.out.println("Does it enter checkStatus method?");
+		int accountNum = acc.getAccountNum();
+		
+		String managerQuery ="select * from Manager where acc_number='"
+                + accountNum
+                + "'";
+		String customerQuery = "select * from Customer where acc_number='"
+                + accountNum
+                + "'";
+		
+		try {
+			currentCon = ConnectionManager.getConnection();
+			stmt=currentCon.createStatement();
+			rs = stmt.executeQuery(managerQuery);
+			boolean more = rs.next();
+			
+			if(!more) {
+				rs2 = stmt.executeQuery(customerQuery);
+				boolean more2 = rs2.next();
+				currentCon.close();
+				if(!more2) {	//return 1 - customer has not filled out customer information yet
+					return 1;
+					//foward to customerForm page
+				}else {		//return 2 - customer has already filled customer information
+					return 2;
+					//foward to customerBooking page
+				}
+			}else{	//return 3 - account is a manager
+				currentCon.close();
+				return 3;
+				//Manager account 
+			}
+		}catch (Exception ex) {
+			System.out.println("Log in failed: An Exception has occurred!" + ex);
+		}finally {
+			if(rs != null) {
+				try {
+					rs.close();
+				}catch (Exception e) {}
+				rs = null;
+			}
+			
+			if(stmt != null) {
+				try {
+					stmt.close();
+				}catch (Exception e) {}
+				stmt = null;
+			}
+			if(currentCon != null) {
+				try {
+					currentCon.close();
+				}catch (Exception e) {}
+				currentCon = null;
+			}
+		}
+		return 0;
+	}
+	
+	public static void insertCustomerData(Customer customer) {
+		Statement stmt = null;
+		System.out.println("Does it enter insertCustomerData method");
+		String createCustomerQuery = "insert into Customer values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		
+		try {
+			currentCon = ConnectionManager.getConnection();
+			stmt = currentCon.createStatement();
+			
+				ps = currentCon.prepareStatement(createCustomerQuery);
+				ps.setInt(1, customer.getAccountNum());
+				ps.setString(2, customer.getFirstName());
+				ps.setString(3, customer.getLastName());
+				ps.setString(4, customer.getAddress());
+				ps.setString(5, customer.getState());
+				ps.setString(6, customer.getCity());
+				ps.setString(7, customer.getZipCode());
+				ps.setString(8, customer.getPhone());
+				ps.setString(9, customer.getEmail());
+				ps.setString(10, customer.getCardNum());
+				
+				
+				ps.executeUpdate();
+				System.out.println("Successfully inserted");
+				ps.close();
+				currentCon.close();
+				return;
+		}catch (Exception ex) {
+			System.out.println("Log in failed: An Exception has occurred!" + ex);
+			return;
+		}finally {
+			if(rs != null) {
+				try {
+					rs.close();
+				}catch (Exception e) {}
+				rs = null;
+			}
+			
+			if(stmt != null) {
+				try {
+					stmt.close();
+				}catch (Exception e) {}
+				stmt = null;
+			}
+			if(currentCon != null) {
+				try {
+					currentCon.close();
+				}catch (Exception e) {}
+				currentCon = null;
+			}
+		}
 	}
 }
