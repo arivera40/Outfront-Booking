@@ -1,6 +1,8 @@
 package LoginPackage;
 
 import java.io.IOException;
+
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,9 +25,26 @@ public class LoginServlet extends HttpServlet {
 			acc = AccountDAO.login(acc);
 			
 			if(acc.isValid()) {
-				HttpSession session = request.getSession(true);
+				int accountStatus = AccountDAO.checkStatus(acc);
+				if(accountStatus == 1) {
+					System.out.println("account status = " + accountStatus);
+					//HttpSession session = request.getSession(true);
+					request.setAttribute("acc_number", acc.getAccountNum());
+					request.setAttribute("email", acc.getEmail());
+					request.getRequestDispatcher("customerForm.jsp").forward(request, response);
+					
+					//response.sendRedirect("customerForm.jsp");
+				}else if(accountStatus == 2) {
+					System.out.println("account status = " + accountStatus);
+					response.sendRedirect("customerIndex.jsp");
+				}else {
+					System.out.println("account status = " + accountStatus);
+					response.sendRedirect("managerIndex.jsp");
+				}
+				
+			/*	HttpSession session = request.getSession(true);
 				session.setAttribute("currentSessionAccount", acc.getUsername());
-				response.sendRedirect("userLogged.jsp");	//logged-in page
+				response.sendRedirect("userLogged.jsp");	//logged-in page	*/
 			}else {
 				response.sendRedirect("invalidLogin.jsp"); //error page
 			}
